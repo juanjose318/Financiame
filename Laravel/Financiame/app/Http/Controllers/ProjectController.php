@@ -5,10 +5,18 @@ namespace App\Http\Controllers;
 use App\Project;
 use Illuminate\Http\Request;
 use App\Category;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 
 class ProjectController extends Controller
-{
+{   
+
+    public function __construct()
+    {
+
+        $this->middleware('auth')->except(['show','index']);
+    }
+
      /**
      * Display a listing of the resource.
      *
@@ -16,7 +24,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::all();
+        $projects = Project::paginate(10);
 
         return view('projects.index',compact('projects'));
     }
@@ -50,26 +58,36 @@ class ProjectController extends Controller
             'final_time'=>['required'],
         ]);
 
-        $fields['user_id'] = Auth::id();
+        $fields['user_id'] = auth()->id();
 
         Project::create(
            $fields
         );
         
-        return redirect('/projects');
+        return redirect('/packages');
 
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Project  $projects
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Project $project)
-    {
 
-        return view('/projects.show',compact('project'));
+    public function show($id)
+    {   
+        $project= DB::table('projects')
+        ->select('*',\DB::raw('projects.user_id as userId, projects.final_time as finalTime, projects.id as projectId'))
+        ->where('projects.id', '=',$id)
+        ->first();
+
+        $packages = DB::table('packages')
+        ->select('*', \DB::raw("packages.id as packageId"))
+        ->where('packages.project_id','=', $id)
+        ->get();
+
+        $categories =DB::table('projects')
+        ->select('*', \DB::raw("projects.id as projectId"))
+        ->join('categories','projects.category_id', '=', 'categories.id')
+        ->where('projects.category_id','=', $id)
+        ->get();
+
+        return view('/projects.show',compact('project','packages','categories'));
     }
 
     /**
@@ -87,7 +105,6 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\Project  $projects
      * @return \Illuminate\Http\Response
      */
@@ -108,7 +125,7 @@ class ProjectController extends Controller
            $fields
         );
         
-        return redirect('/projects');
+        return redirect('/packages');
             
     }
 
@@ -120,10 +137,27 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
+        abort_if($project->user_id !== auth()->id(),403);
 
         $project->delete();
 
         return redirect('/projects');
        
+    }
+
+    public function showUserProjects ()
+    {   
+        
+        $projects = Project::where('user_id', auth()->id())->get();
+        
+        
+
+        return view('dashboard', compact('projects'));
+    }   
+
+    public function showPackages(Project $project){
+    
+    
+        return view('projects.payment',compact('project'));
     }
 }

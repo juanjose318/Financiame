@@ -18,7 +18,7 @@ class CreateProjectsTable extends Migration
             $table->string('title'); 
             $table->string('intro');
             $table->string('content');
-            $table->integer('user_id');
+            $table->integer('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->integer('category_id');
             $table->integer('credit_goal');
             $table->dateTime('initial_time');

@@ -7,14 +7,11 @@
 
 <p> {{$post->content}} </p>
 <div class="row">
-@foreach($post->images as $image)
+
 <div class="col-sm">
-<img class="img-fluid" src="{{  $image->filepath . '/' . $image->filename}}" alt="{{ $post->title }}">
-</div>
-
-@endforeach
+<img class="img-fluid" src="{{ asset("/storage/posts/$post->image_path") }}">
+<p> Published at : {{ $post->created_at }}</p>
 </div>
 </div>
-
-<p><a href="/posts/{{ $post->id }}/edit">Edit</a></p>
+</div>
 @endsection

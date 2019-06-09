@@ -21,9 +21,5 @@
 
 @endforeach
 </ul>
-
-<p>
-    <a href="/posts/create">Create a Post</a>
-</p>
 @endsection
 

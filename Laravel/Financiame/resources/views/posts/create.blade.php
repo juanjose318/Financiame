@@ -1,19 +1,10 @@
 @extends('layout')
 
-@section('title')
-Create Article
-@endsection
-
+@section('title','Create Post')
 
 @section('content')
 
 <h1>Create a New Post</h1>
-
-@if(Session::has('notification'))
-        <div class="notification is-{{ Session::get('notification') }}">
-            {{ Session::get('message') }}
-        </div>
-    @endif
 
 <form method="POST" action="{{ action('PostController@store') }} " enctype="multipart/form-data">
    @csrf
@@ -32,23 +23,12 @@ Create Article
     </div>
     <div class="form-group">
         <label for="image">Add an image</label>
-        <input type="file" name="image[]" class="form-control-file">
-        <input type="file" name="image[]" class="form-control-file">
+        <input type="file" name="image" class="form-control-file">
 
     </div>
     <button type="submit" class="btn btn-primary">Create Article</button>
 
-    @if ($errors->any())
-    <div>
-        <ul>
-            @foreach($errors->all() as $error)
-
-            <li>{{ $error }}</li>
-
-            @endforeach
-        </ul>
-    </div>
-    @endif
+   
 </form>
 
 @endsection

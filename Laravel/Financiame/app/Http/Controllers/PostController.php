@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Post;
-use App\Image;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,7 +19,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
+        $posts = Post::paginate(10);
 
         return view('posts.index',compact('posts'));
     }
@@ -57,7 +58,7 @@ class PostController extends Controller
         $validator = Validator::make($request->all(),$rules);
 
         if($validator->fails()) {
-            // dd('validation fail');
+          
             return Redirect::back()
             ->withInput()
             ->with(
@@ -69,51 +70,33 @@ class PostController extends Controller
             ->withErrors($validator);
             
         }        
+               
+        if ($request->hasFile('image'))
+        {
+            $fileNameWithExtension = $request->file('image')->getClientOriginalName();
+            $fileName = pathinfo($fileNameWithExtension, PATHINFO_FILENAME);
+            $extension = $request->file('image')->getClientOriginalExtension();
+            $fileNameToStore = $fileName .'_'.time().'.'.$extension;
+
+            $path = $request->file('image')->storeAs('public/posts',$fileNameToStore);
+        }
+        else {
+            $fileNameToStore= 'noImage.jpg';
+         
+        }
+        
         $post = new Post();
         $post->title = $request->input('title');
         $post->intro = $request->input('intro');
         $post->content = $request->input('content');
-        $success = $post->save();
+        $post->image_path = $fileNameToStore;
 
-
-        /**
-         * Handle image upload
-         */
-
-        if($request->hasfile('image') && $success){
-
-            // dd($request->file('image'));
-
-            $directory = '/storage/project-' . $post->id;
-
-           // $image = $request->file('image');
-            foreach($request->file('image') as $image) {
-
-                $name = $image->getClientOriginalName();
-
-                $extension = $image ->getClientOriginalExtension();
-
-                $fileName = pathinfo($name,PATHINFO_FILENAME) . '-' . time() . '.' . $extension;
-
-                $image->storeAs($directory,$fileName,'public');
-
-                $image = new Image();
-                $image->post_id = $post->id;
-                $image->filename = $fileName;
-                $image->filepath = $directory;
-                $image->save();
-            }
-
-                return back()->with([
-                    'notification' => 'succes',
-                    'message' => 'You have created a new post'
-                ]);
-
-            }
-
-        }
-
-    
+        $post->save();
+        return redirect()->route('admin-posts')->with([
+            'notification' => 'succes',
+            'message' => 'You have created a new post'
+        ]);
+    }
 
     /**
      * Display the specified resource.
@@ -121,10 +104,10 @@ class PostController extends Controller
      * @param  \App\Post  $posts
      * @return \Illuminate\Http\Response
      */
-    public function show(Post $post)
+    public function show(Post $post )
     {
-
-        return view('/posts.show',compact('post'));
+     
+            return view('posts.show', compact('post'));
     }
 
     /**
@@ -148,7 +131,7 @@ class PostController extends Controller
     public function update(Post $post)
     {
         $post->update(request(['title','content']));
-        return redirect('/posts');
+        return redirect('/admin/posts');
             
     }
 
@@ -158,12 +141,14 @@ class PostController extends Controller
      * @param  \App\Post  $posts
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Post $post)
+    public function destroy($id)
     {
 
-        $post->delete();
+        $post= Post::findOrFail($id);
 
-        return redirect('/posts');
+        $post->delete();
+        
+        return redirect('admin/posts');
        
     }
 }

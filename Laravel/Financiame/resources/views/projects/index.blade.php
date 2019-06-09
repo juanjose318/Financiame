@@ -13,12 +13,11 @@
     <a href="/projects/{{ $project->id }}"><h1>{{ $project->title }}</h1></a>
     <p>{{  $project->intro }}</p>
 </div>
+
 @endforeach
 
-<ul>
-@foreach($projects as $project )
-    <li><a href="/projects/{{ $project->id }}">{{ $project->title }}</a></li>
-@endforeach
-</ul>
+
+{{ $projects->links() }}
+
 
 @endsection
