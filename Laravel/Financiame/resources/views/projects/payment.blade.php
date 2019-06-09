@@ -8,7 +8,7 @@
     <h1> Reward Packages</h1>
 </div>
 <div class="row">
-    <p>To show our gratitude, we would live to offer you different rewards</p>
+    <p>To show our gratitude, we would like to offer you different rewards</p>
 </div>
 <div class="row">
 <div class="card-deck mb-3 text-center">
@@ -23,9 +23,13 @@
         </div>
         <div class="card-footer">
             <b class="mt-3 mb-4" >{{ $package->credit_price }} credits </b>
-            <a class="btn btn-primary btn-lg btn-block" href="#">Pick Reward</a>
-           
-        </div>
+            <form  action="{{ route('sponsor-project') }}" method="post">
+                        {{ csrf_field() }}
+                        <input type="hidden"  id="package_id" name="package_id" value="{{$package->packageId }}" >
+                        <input type="hidden" id="project_id"  name="project_id" value="{{$project->projectId}}" >
+                        <button class="btn btn-primary btn-block" type="submit">Pick Reward</button>
+            </form>
+        </div>  
     </div>
     @endforeach
 </div>

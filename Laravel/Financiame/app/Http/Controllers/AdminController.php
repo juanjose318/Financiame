@@ -6,7 +6,7 @@ use App\User;
 use App\Post;
 use App\Project;
 use App\Category;
-use App\Admin;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Redirect;

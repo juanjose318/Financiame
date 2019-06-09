@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Project;
-use Illuminate\Http\Request;
 use App\Category;
+use App\Image;
+use App\ImageProject;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {   
@@ -46,28 +49,57 @@ class ProjectController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store()
+    public function store(Request $request)
     {
         
-        $fields =  request()->validate([
-            'title'=>['required','min:3'],
-            'content'=>['required','min:3'],
-            'intro'=>['required','min:3'],
-            'credit_goal'=>['required'],
-            'category_id'=>['required'],
-            'final_time'=>['required'],
+        request()->validate([
+            'title'=>'required|min:3',
+            'content'=>'required|min:3',
+            'intro'=>'required|min:3',
+            'credit_goal'=>'required',
+            'category_id'=>'required',
+            'final_time'=>'required',
+            'image[]' => 'image|mimes:jpeg,png,jpg,gif,svg',
         ]);
-
-        $fields['user_id'] = auth()->id();
-
-        Project::create(
-           $fields
-        );
         
-        return redirect('/packages');
+        
+        $user = auth()->user();
+        $userId=$user->id;
 
+        $project = new Project();
+        $project->title = $request->input('title');
+        $project->content = $request->input('content');
+        $project->intro = $request->input('intro');
+        $project->user_id = $userId;
+        $project->category_id = $request->input('category_id');
+        $project->credit_goal = $request->input('credit_goal');
+        $project->final_time = $request->input('final_time');
+        $project->save();
+        
+    
+        if($request->hasFile('image')) {
+
+            foreach($request->file('image') as $image) {
+
+                $image = new Image();
+                $filePath = Storage::put('img/projects/',$image);
+                $pathName = basename($filePath);
+                $image->path= 'img/projects/' . $pathName;
+                $image->save();
+
+                $projectImage = new ImageProject(); 
+                $projectImage ->project_id = $project->id;
+                $projectImage->image_id= $image->id;
+                $projectImage->save();
+            }
+        }
+            return redirect('/packages')->with([
+                'notification' => 'success',
+                'message' => 'Project uploaded, time to make rewards for your funders'
+            ]);
+        
     }
-
+        
 
     public function show($id)
     {   
@@ -87,7 +119,25 @@ class ProjectController extends Controller
         ->where('projects.category_id','=', $id)
         ->get();
 
-        return view('/projects.show',compact('project','packages','categories'));
+        $projectImages = DB::table('image_projects')
+        ->select('image_id as imageId')
+        ->where('image_projects.project_id', '=', $id)
+        ->get()
+        ->toArray();
+
+        $images = array();
+
+        if (!$images)
+        {
+            foreach($projectImages as $image)
+            {
+                $imageId = $image->imageId;
+                $imageSelected = Image::find($imageId);   
+                $images[] = str_replace('img/', '', $imageSelected->path);
+            }
+        }
+
+        return view('/projects.show',compact('project','packages','categories','images'));
     }
 
     /**

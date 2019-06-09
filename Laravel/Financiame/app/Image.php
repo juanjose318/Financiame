@@ -7,5 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Image extends Model
 {
     protected $table = 'image';
-    protected $fillable = ['post_id', 'image_id'];
+    protected $fillable = ['path'];
+   
+    public function imageProject()
+    {
+        return $this->belongsTo(ImageProject::class);
+    }
 }

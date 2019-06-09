@@ -15,7 +15,7 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-            <a href="/"><img src="" alt="Financiame"></a>
+            <a href="/posts/"><img src="{{asset('storage/img/logo.png')}}" alt="Financiame" class="img-fluid" width="150" height="40"></a>
             <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>

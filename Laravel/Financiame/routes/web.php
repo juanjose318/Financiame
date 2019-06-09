@@ -2,23 +2,9 @@
 
 
 Auth::routes();
-Route::get('/', 'HomeController@index')->name('home');
 Route::resource('/posts','PostController');
 
-// Projects 
-
-Route::resource('/projects','ProjectController');
-Route::get('/user/projects', 'ProjectController@showUserProjects')->name('user-dashboard');
-Route::get('/project/{project}/packages','ProjectController@showPackages')->name('packages-show');
-
-// Credits 
-
-Route::get('/credits/buy','PaymentController@create')->name('buy-credits');
-Route::post('/credits/buy/','PaymentController@store')->name('store-credits');
-
-
- // Admin Dashboard Crud operations for users, posts and categories
-
+// Admin Dashboard Crud operations for users, posts and categories
 Route::middleware(['admin' ])->group(function () 
 {
 Route::get('/admin','AdminController@index')->name('dashboard'); 
@@ -37,8 +23,19 @@ Route::post('/admin/categories/store','AdminController@storeCategory')->name('ad
 Route::get('/admin/categories/{id}/delete','AdminController@deleteCategory')->name('admin-delete-category');
 });
  
-// Packages Crud 
+// Projects 
 
+Route::resource('/projects','ProjectController');
+Route::get('/user/projects', 'ProjectController@showUserProjects')->name('user-dashboard');
+Route::get('/project/{project}/packages','ProjectController@showPackages')->name('packages-show');
+
+// Credits & Payment
+
+Route::get('/credits/buy','PaymentController@create')->name('buy-credits');
+Route::post('/credits/buy/','PaymentController@store')->name('store-credits');
+Route::post('/finance','PaymentController@fundProject')->name('sponsor-project');
+
+ // Packages Crud 
 Route::middleware(['auth'])->group(function()
   {
     Route::get('/packages','PackageController@index')->name('packages-index');

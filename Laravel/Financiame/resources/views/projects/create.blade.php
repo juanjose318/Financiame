@@ -48,8 +48,7 @@ Create Project
     <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
   </div>
   <div class="custom-file">
-    <input type="file" name="image" class="custom-file-input" id="inputGroupFile01"
-      aria-describedby="inputGroupFileAddon01">
+    <input type="file" name="image[]" class="custom-file-input" id="inputGroupFile01"aria-describedby="inputGroupFileAddon01" multiple>
     <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
   </div>
 </div>
